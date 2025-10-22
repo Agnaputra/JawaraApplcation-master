@@ -44,7 +44,8 @@ class _BroadcastTambahFormState extends State<_BroadcastTambahForm> {
         content: Text(
           'Broadcast "${_judulController.text}" siap dikirim (UI OK)!',
         ),
-        backgroundColor: Colors.green,
+        // Menggunakan Colors.deepPurple
+        backgroundColor: Colors.deepPurple,
       ),
     );
 
@@ -87,7 +88,8 @@ class _BroadcastTambahFormState extends State<_BroadcastTambahForm> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                color: Color(0xFF7166F9),
+                // Menggunakan Colors.deepPurple
+                color: Colors.deepPurple,
                 width: 1.5,
               ),
             ),
@@ -212,7 +214,8 @@ class _BroadcastTambahFormState extends State<_BroadcastTambahForm> {
               ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7166F9),
+                  // Menggunakan Colors.deepPurple
+                  backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,
@@ -265,14 +268,8 @@ class BroadcastTambahPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF7166F9).withOpacity(0.9),
-                  const Color(0xFFC4B8FD),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              // Menggunakan warna solid Colors.deepPurple
+              color: Colors.deepPurple,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(
@@ -307,12 +304,3 @@ class BroadcastTambahPage extends StatelessWidget {
   }
 }
 
-// --- MAIN ---
-void main() {
-  runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(body: BroadcastTambahPage()),
-    ),
-  );
-}

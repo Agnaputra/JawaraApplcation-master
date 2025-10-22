@@ -46,8 +46,9 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: const Color(0xFF7166F9),
-            colorScheme: const ColorScheme.light(primary: Color(0xFF7166F9)),
+            // Menggunakan Colors.deepPurple untuk date picker
+            primaryColor: Colors.deepPurple,
+            colorScheme: const ColorScheme.light(primary: Colors.deepPurple),
             buttonTheme: const ButtonThemeData(
               textTheme: ButtonTextTheme.primary,
             ),
@@ -85,7 +86,7 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
           content: Text(
             'Kegiatan "${_namaController.text}" berhasil disimpan!',
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.deepPurple, // Menggunakan Colors.deepPurple
         ),
       );
       _resetForm();
@@ -128,7 +129,7 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                color: Color(0xFF7166F9),
+                color: Colors.deepPurple, // Menggunakan Colors.deepPurple
                 width: 1.5,
               ),
             ),
@@ -190,8 +191,9 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+                // Menggunakan Colors.deepPurple
                 borderSide: const BorderSide(
-                  color: Color(0xFF7166F9),
+                  color: Colors.deepPurple,
                   width: 1.5,
                 ),
               ),
@@ -241,8 +243,9 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+                // Menggunakan Colors.deepPurple
                 borderSide: const BorderSide(
-                  color: Color(0xFF7166F9),
+                  color: Colors.deepPurple,
                   width: 1.5,
                 ),
               ),
@@ -264,7 +267,7 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
                     icon: const Icon(
                       Icons.calendar_month,
                       size: 20,
-                      color: Color(0xFF7166F9),
+                      color: Colors.deepPurple, // Menggunakan Colors.deepPurple
                     ),
                     onPressed: () => _selectDate(context),
                   ),
@@ -304,7 +307,8 @@ class _KegiatanTambahFormState extends State<KegiatanTambahForm> {
               ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7166F9),
+                  // Menggunakan Colors.deepPurple
+                  backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,
@@ -357,14 +361,8 @@ class KegiatanTambahPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF7166F9).withAlpha((0.9 * 255).toInt()),
-                  const Color(0xFFC4B8FD),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              // Menggunakan warna solid Colors.deepPurple
+              color: Colors.deepPurple,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(

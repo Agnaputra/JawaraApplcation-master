@@ -28,8 +28,9 @@ class _KegiatanFilterDialogState extends State<_KegiatanFilterDialog> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: const Color(0xFF7166F9),
-            colorScheme: const ColorScheme.light(primary: Color(0xFF7166F9)),
+            // Menggunakan Colors.deepPurple
+            primaryColor: Colors.deepPurple,
+            colorScheme: const ColorScheme.light(primary: Colors.deepPurple),
             buttonTheme: const ButtonThemeData(
               textTheme: ButtonTextTheme.primary,
             ),
@@ -192,7 +193,8 @@ class _KegiatanFilterDialogState extends State<_KegiatanFilterDialog> {
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF7166F9),
+            // Menggunakan Colors.deepPurple
+            backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             shape: RoundedRectangleBorder(
@@ -206,208 +208,194 @@ class _KegiatanFilterDialogState extends State<_KegiatanFilterDialog> {
   }
 }
 
-// --- BAGIAN 2: KOMPONEN TABEL DATA ---
-class _KegiatanDaftarTable extends StatelessWidget {
-  _KegiatanDaftarTable({super.key});
+// --- BAGIAN 2: LIST DATA KEGIATAN (CARD MODEL) ---
+
+class KegiatanListSection extends StatefulWidget {
+  const KegiatanListSection({super.key});
+
+  @override
+  State<KegiatanListSection> createState() => _KegiatanListSectionState();
+}
+
+class _KegiatanListSectionState extends State<KegiatanListSection> {
+  // Data Dummy Kegiatan
+  final List<Map<String, String>> _allKegiatan = [
+    {
+      'no': '1',
+      'nama': 'Gotong Royong Desa',
+      'kategori': 'Komunitas & Sosial',
+      'pj': 'Pak Budi',
+      'tanggal': '12 Oktober 2025',
+      'lokasi': 'Balai RT 01',
+      'deskripsi': 'Kerja bakti membersihkan lingkungan dan selokan air.',
+    },
+    {
+      'no': '2',
+      'nama': 'Bakti Sosial Masjid',
+      'kategori': 'Keagamaan',
+      'pj': 'Bu Rina',
+      'tanggal': '20 Oktober 2025',
+      'lokasi': 'Masjid Al-Ikhlas',
+      'deskripsi': 'Pembagian sembako untuk keluarga kurang mampu di sekitar masjid.',
+    },
+    {
+      'no': '3',
+      'nama': 'Pelatihan Menjahit',
+      'kategori': 'Pendidikan',
+      'pj': 'Agna Putra',
+      'tanggal': '25 Oktober 2025',
+      'lokasi': 'Sekretariat RW',
+      'deskripsi': 'Pelatihan menjahit untuk pemuda-pemudi.',
+    },
+  ];
+
+  final List<bool> _expanded = [];
+
+  void _ensureExpandedLength() {
+    if (_expanded.length != _allKegiatan.length) {
+      _expanded.clear();
+      _expanded.addAll(List<bool>.filled(_allKegiatan.length, false));
+    }
+  }
+
+  void _showDetail(BuildContext context, Map<String, String> data) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => KegiatanDetailPage(itemData: data),
+      ),
+    );
+  }
+
+  void _showEdit(BuildContext context, Map<String, String> data) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => KegiatanEditForm(initialData: data),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    const List<String> headers = [
-      'NO',
-      'NAMA KEGIATAN',
-      'KATEGORI',
-      'PENANGGUNG JAWAB',
-      'TANGGAL PELAKSANAAN',
-      'AKSI',
-    ];
+    _ensureExpandedLength();
 
-    // Data Dummy
-    final List<List<String>> dataRows = [
-      [
-        '1',
-        'Gotong Royong Desa',
-        'Komunitas & Sosial',
-        'Pak Budi',
-        '12 Oktober 2025',
-      ],
-      ['2', 'Bakti Sosial Masjid', 'Keagamaan', 'Bu Rina', '20 Oktober 2025'],
-      [
-        '3',
-        'Pelatihan Flutter Dasar',
-        'Pendidikan',
-        'Agna Putra',
-        '25 Oktober 2025',
-      ],
-      [
-        '4',
-        'Donor Darah Bersama',
-        'Komunitas & Sosial',
-        'Dony',
-        '28 Oktober 2025',
-      ],
-      ['5', 'Lomba Cerdas Cermat', 'Pendidikan', 'Bu Wati', '2 November 2025'],
-    ];
+    return ListView.separated(
+      itemCount: _allKegiatan.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (ctx, i) {
+        final data = _allKegiatan[i];
+        final isExpanded = _expanded[i];
 
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Tabel
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-            ),
-            child: IntrinsicHeight(
-              child: Row(
-                children: List.generate(headers.length, (index) {
-                  return Expanded(
-                    flex: index == 0
-                        ? 1
-                        : (index == headers.length - 1 ? 1 : 3),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 12.0,
-                      ),
-                      child: Text(
-                        headers[index],
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                          color: Color(0xFF707070),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ),
-
-          // Baris Data
-          ...dataRows.map((row) {
-            return IntrinsicHeight(
-              child: Row(
-                children: [
-                  // Kolom Data
-                  ...List.generate(row.length, (colIndex) {
-                    return Expanded(
-                      flex: colIndex == 0 ? 1 : 3,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0,
-                          vertical: 12.0,
-                        ),
-                        child: Text(
-                          row[colIndex],
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                    );
-                  }),
-
-                  // Kolom Aksi (Menu Pop-up)
-                  Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 8.0,
-                      ),
-                      child: PopupMenuButton<String>(
-                        icon: const Icon(
-                          Icons.more_horiz,
-                          color: Color(0xFF9097A6),
-                        ),
-                        onSelected: (String result) {
-                          // Menampilkan feedback ke pengguna
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '$result: ${row[1]}',
-                              ), // Menampilkan aksi dan nama kegiatan
-                              backgroundColor: result == 'Hapus'
-                                  ? Colors.red
-                                  : const Color(0xFF7166F9),
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            children: [
+              // Header Card (Tappable)
+              InkWell(
+                onTap: () => setState(() => _expanded[i] = !_expanded[i]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  child: Row(
+                    children: [
+                      // Judul & PJ
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data['nama'] ?? '',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
-                          );
-
-                          // TODO: Implementasi logika spesifik di sini:
-                          if (result == 'Lihat Detail') {
-                            // Navigasi ke halaman detail
-                          } else if (result == 'Edit') {
-                            // Navigasi ke halaman edit
-                          } else if (result == 'Hapus') {
-                            // Tampilkan dialog konfirmasi hapus
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                              const PopupMenuItem<String>(
-                                value: 'Lihat Detail',
-                                child: Text('Lihat Detail'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'Edit',
-                                child: Text('Edit'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'Hapus',
-                                child: Text(
-                                  'Hapus',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
+                            const SizedBox(height: 4),
+                            Text(
+                              'PJ: ${data['pj']} • ${data['tanggal']}',
+                              style: const TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-
-          // Bagian Paginasi
-          const Divider(height: 1, color: Color(0xFFF0F0F5)),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.arrow_left, color: Color(0xFFD6D3D6)),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF7166F9),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    '1',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      // Ikon Expand
+                      Icon(
+                        isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: Colors.grey,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_right, color: Color(0xFFD6D3D6)),
-              ],
-            ),
+              ),
+
+              // Konten Detail (Expanded)
+              if (isExpanded)
+                Column(
+                  children: [
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Kategori: ${data['kategori']}', style: const TextStyle(fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 8),
+                          // Ringkasan Deskripsi
+                          Text(data['deskripsi'] ?? 'Tidak ada deskripsi.'),
+                          const SizedBox(height: 16),
+
+                          // Tombol Aksi
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Tombol Detail
+                              OutlinedButton(
+                                onPressed: () => _showDetail(context, data),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.deepPurple,
+                                ),
+                                child: const Text('Detail'),
+                              ),
+                              const SizedBox(width: 8),
+                              // Tombol Edit
+                              OutlinedButton(
+                                onPressed: () => _showEdit(context, data),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.deepPurple,
+                                ),
+                                child: const Text('Edit'),
+                              ),
+                              const SizedBox(width: 8),
+                              // Tombol Hapus (Elevated Button Merah)
+                              ElevatedButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Aksi Hapus Dipicu.'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Hapus'),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-// --- BAGIAN 3: KELAS UTAMA (kegiatanDaftarPage) ---
+// --- BAGIAN 3: HALAMAN UTAMA (kegiatanDaftarPage) ---
 class kegiatanDaftarPage extends StatelessWidget {
   const kegiatanDaftarPage({super.key});
 
@@ -431,14 +419,8 @@ class kegiatanDaftarPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF7166F9).withOpacity(0.9),
-                  const Color(0xFFC4B8FD),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              // Warna solid Colors.deepPurple
+              color: Colors.deepPurple,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(
@@ -458,7 +440,7 @@ class kegiatanDaftarPage extends StatelessWidget {
           ),
           const SizedBox(height: 30),
 
-          // Row Filter
+          // Tombol filter (Container solid dengan Icons.filter_list)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -466,12 +448,12 @@ class kegiatanDaftarPage extends StatelessWidget {
                 onTap: () => _showFilterDialog(context),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7166F9),
+                    color: Colors.deepPurple,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding: const EdgeInsets.all(8),
                   child: const Icon(
-                    Icons.filter_alt,
+                    Icons.filter_list, // Ikon filter yang diminta
                     color: Colors.white,
                     size: 24,
                   ),
@@ -482,10 +464,263 @@ class kegiatanDaftarPage extends StatelessWidget {
           ),
           const SizedBox(height: 15),
 
-          // Tabel Data Kegiatan
-          _KegiatanDaftarTable(),
+          // LIST DATA KEGIATAN
+          const SizedBox(
+            height: 500, // Memberikan tinggi tetap agar ListView dapat di-scroll
+            child: KegiatanListSection(),
+          ),
         ],
       ),
+    );
+  }
+}
+
+// --- BAGIAN 4: DETAIL PAGE (BARU - Mirip BroadcastDetailPage) ---
+
+class KegiatanDetailPage extends StatelessWidget {
+  final Map<String, String> itemData;
+  const KegiatanDetailPage({super.key, required this.itemData});
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Tombol Kembali
+            TextButton.icon(
+              icon: const Icon(Icons.arrow_back, color: Colors.blue),
+              label: const Text(
+                'Kembali',
+                style: TextStyle(color: Colors.blue, fontSize: 16),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            const SizedBox(height: 16),
+
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 2.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Detail Kegiatan',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Detail Kegiatan
+                      _buildDetailRow('Nama Kegiatan:', itemData['nama'] ?? '-'),
+                      _buildDetailRow('Kategori:', itemData['kategori'] ?? '-'),
+                      _buildDetailRow('Penanggung Jawab:', itemData['pj'] ?? '-'),
+                      _buildDetailRow('Tanggal Pelaksanaan:', itemData['tanggal'] ?? '-'),
+                      _buildDetailRow('Lokasi:', itemData['lokasi'] ?? '-'),
+                      _buildDetailRow('Deskripsi:', itemData['deskripsi'] ?? '-'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --- BAGIAN 5: EDIT FORM (BARU - Mirip BroadcastEditForm) ---
+
+class KegiatanEditForm extends StatefulWidget {
+  final Map<String, String> initialData;
+  const KegiatanEditForm({super.key, required this.initialData});
+
+  @override
+  State<KegiatanEditForm> createState() => _KegiatanEditFormState();
+}
+
+class _KegiatanEditFormState extends State<KegiatanEditForm> {
+  late TextEditingController _namaController;
+  late TextEditingController _deskripsiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _namaController = TextEditingController(text: widget.initialData['nama']);
+    _deskripsiController = TextEditingController(text: widget.initialData['deskripsi']);
+  }
+
+  @override
+  void dispose() {
+    _namaController.dispose();
+    _deskripsiController.dispose();
+    super.dispose();
+  }
+
+  void _onSave() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Kegiatan "${_namaController.text}" berhasil diperbarui!'),
+        backgroundColor: Colors.deepPurple,
+      ),
+    );
+    Navigator.of(context).pop();
+  }
+
+  void _onReset() {
+    setState(() {
+      _namaController.text = widget.initialData['nama'] ?? '';
+      _deskripsiController.text = widget.initialData['deskripsi'] ?? '';
+      // Tambahkan logika reset untuk field lain jika ada (kategori, tgl, dll)
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Tombol Kembali
+            TextButton.icon(
+              icon: const Icon(Icons.arrow_back, color: Colors.blue),
+              label: const Text(
+                'Kembali',
+                style: TextStyle(color: Colors.blue, fontSize: 16),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            const SizedBox(height: 16),
+
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 2.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Edit Kegiatan',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Nama Kegiatan
+                      _buildTextField(_namaController, 'Nama Kegiatan', 'Masukkan nama kegiatan'),
+                      const SizedBox(height: 16),
+                      
+                      // Deskripsi Kegiatan
+                      _buildTextField(_deskripsiController, 'Deskripsi Kegiatan', 'Tulis deskripsi kegiatan di sini...', maxLines: 6),
+                      // Catatan: Field lain (Kategori, Tgl, PJ) dihilangkan untuk kesederhanaan, namun harus ditambahkan untuk fungsionalitas penuh.
+                      const SizedBox(height: 24),
+
+                      // Tombol Aksi (Submit & Reset)
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _onSave,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurple,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Submit'),
+                          ),
+                          const SizedBox(width: 10),
+                          OutlinedButton(
+                            onPressed: _onReset,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.black54,
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              side: const BorderSide(color: Colors.grey),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Reset'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, String hint, {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        const SizedBox(height: 5),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.deepPurple, width: 1.5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
