@@ -29,4 +29,3 @@ Berikut adalah daftar fungsionalitas yang telah diimplementasikan dalam modul in
 | **Daftar Mutasi** |  Views the history of family move-in or move-out records. | Complete & Detailed. Implemented as an interactive Card List. The expanded section displays comprehensive transfer details, including Transfer Type, Family Name, Date, Reason, New/Old Address, and Reference Letter Number. The Edit button was removed as requested. |
 | **Tambah Mutasi** |  Registers a new family transfer event. | Complete. A comprehensive input form for recording Transfer Type, Family, Transfer Date (with DatePicker), and Reason. The form styling is integrated with the project's consistent dark purple theme. |
 
-![alt text](<WhatsApp Video 2025-10-26 at 10.31.31_88d93ad4 (1).gif>)
