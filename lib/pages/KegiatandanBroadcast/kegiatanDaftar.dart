@@ -42,6 +42,12 @@ class _KegiatanFilterDialogState extends State<_KegiatanFilterDialog> {
     }
   }
 
+  void _resetDate() {
+    setState(() {
+      _selectedDate = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     String dateText = _selectedDate == null
@@ -53,14 +59,8 @@ class _KegiatanFilterDialogState extends State<_KegiatanFilterDialog> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'Filter Kegiatan',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+          const Text('Filter Kegiatan', style: TextStyle(fontWeight: FontWeight.bold)),
+          IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop()),
         ],
       ),
       content: SingleChildScrollView(
@@ -112,10 +112,7 @@ class _KegiatanFilterDialogState extends State<_KegiatanFilterDialog> {
         ),
       ),
       actions: [
-        OutlinedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Reset'),
-        ),
+        OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Reset')),
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           style: ElevatedButton.styleFrom(
@@ -174,6 +171,14 @@ class _KegiatanListSectionState extends State<KegiatanListSection> {
     }
   }
 
+  void _showDetail(BuildContext context, Map<String, String> data) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => KegiatanDetailPage(itemData: data)));
+  }
+
+  void _showEdit(BuildContext context, Map<String, String> data) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => KegiatanEditForm(initialData: data)));
+  }
+
   @override
   Widget build(BuildContext context) {
     _ensureExpandedLength();
@@ -192,6 +197,7 @@ class _KegiatanListSectionState extends State<KegiatanListSection> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Column(
             children: [
+              // Header Card (Tappable)
               InkWell(
                 onTap: () => setState(() => _expanded[i] = !_expanded[i]),
                 borderRadius: BorderRadius.circular(12),
@@ -203,22 +209,19 @@ class _KegiatanListSectionState extends State<KegiatanListSection> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(data['nama'] ?? '',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(data['nama'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                             const SizedBox(height: 4),
-                            Text('PJ: ${data['pj']} • ${data['tanggal']}',
-                                style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                            Text('PJ: ${data['pj']} • ${data['tanggal']}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
                           ],
                         ),
                       ),
-                      Icon(
-                        isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                        color: Colors.grey,
-                      ),
+                      Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey),
                     ],
                   ),
                 ),
               ),
+
+              // Konten Detail (Expanded)
               if (isExpanded)
                 Column(
                   children: [
@@ -228,18 +231,18 @@ class _KegiatanListSectionState extends State<KegiatanListSection> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Kategori: ${data['kategori']}',
-                              style: const TextStyle(fontWeight: FontWeight.w500)),
+                          Text('Kategori: ${data['kategori']}', style: const TextStyle(fontWeight: FontWeight.w500)),
                           const SizedBox(height: 8),
                           Text(data['deskripsi'] ?? 'Tidak ada deskripsi.'),
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              // Tombol Detail (Kompak)
                               SizedBox(
                                 height: 30,
                                 child: OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () => _showDetail(context, data),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 10),
                                     foregroundColor: Colors.deepPurple,
@@ -248,10 +251,11 @@ class _KegiatanListSectionState extends State<KegiatanListSection> {
                                 ),
                               ),
                               const SizedBox(width: 6),
+                              // Tombol Edit (Kompak)
                               SizedBox(
                                 height: 30,
                                 child: OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () => _showEdit(context, data),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 10),
                                     foregroundColor: Colors.deepPurple,
@@ -260,10 +264,16 @@ class _KegiatanListSectionState extends State<KegiatanListSection> {
                                 ),
                               ),
                               const SizedBox(width: 6),
+                              // Tombol Hapus (Kompak)
                               SizedBox(
                                 height: 30,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                      content: Text('Aksi Hapus Dipicu.'),
+                                      backgroundColor: Colors.red,
+                                    ));
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
@@ -315,6 +325,175 @@ class KegiatanDaftarPage extends StatelessWidget {
         mini: true,
         onPressed: () => _showFilterDialog(context),
         child: const Icon(Icons.filter_list, color: Colors.white),
+      ),
+    );
+  }
+}
+
+// --- BAGIAN 4: DETAIL PAGE (Diperlukan untuk navigasi) ---
+class KegiatanDetailPage extends StatelessWidget {
+  final Map<String, String> itemData;
+  const KegiatanDetailPage({super.key, required this.itemData});
+
+  Widget _row(String label, String value) => Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 4),
+          Text(value, style: const TextStyle(fontSize: 15)),
+        ]),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detail Kegiatan'), backgroundColor: Colors.deepPurple),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                _row('Nama Kegiatan', itemData['nama'] ?? '-'),
+                _row('Kategori', itemData['kategori'] ?? '-'),
+                _row('Penanggung Jawab', itemData['pj'] ?? '-'),
+                _row('Tanggal Pelaksanaan', itemData['tanggal'] ?? '-'),
+                _row('Lokasi', itemData['lokasi'] ?? '-'),
+                _row('Deskripsi', itemData['deskripsi'] ?? '-'),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// --- BAGIAN 5: EDIT FORM (SUDAH DIPERBAIKI) ---
+class KegiatanEditForm extends StatefulWidget {
+  final Map<String, String> initialData;
+  const KegiatanEditForm({super.key, required this.initialData});
+
+  @override
+  State<KegiatanEditForm> createState() => _KegiatanEditFormState();
+}
+
+class _KegiatanEditFormState extends State<KegiatanEditForm> {
+  late TextEditingController _namaController;
+  late TextEditingController _deskripsiController;
+  // Note: Untuk form lengkap, Anda harus menambahkan controller/state untuk PJ, Kategori, Tanggal, dll.
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi controller dengan data awal
+    _namaController = TextEditingController(text: widget.initialData['nama'] ?? '');
+    _deskripsiController = TextEditingController(text: widget.initialData['deskripsi'] ?? '');
+  }
+
+  @override
+  void dispose() {
+    _namaController.dispose();
+    _deskripsiController.dispose();
+    super.dispose();
+  }
+
+  void _onSave() {
+    // Simulasi menyimpan data yang telah diubah
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Kegiatan "${_namaController.text}" berhasil diubah!'),
+        backgroundColor: Colors.deepPurple,
+      ),
+    );
+    Navigator.pop(context); 
+  }
+
+  void _onReset() {
+    // Mengembalikan ke data awal
+    setState(() {
+      _namaController.text = widget.initialData['nama'] ?? '';
+      _deskripsiController.text = widget.initialData['deskripsi'] ?? '';
+    });
+  }
+  
+  Widget _buildTextField(TextEditingController controller, String label, String hint, {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF454545))),
+        const SizedBox(height: 5),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: const Color(0xFFF0F0F5),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.deepPurple, width: 1.5)),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Edit ${widget.initialData['nama'] ?? 'Kegiatan'}'), backgroundColor: Colors.deepPurple),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Formulir Edit Kegiatan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+
+                // Nama Kegiatan
+                _buildTextField(_namaController, 'Nama Kegiatan', 'Masukkan nama kegiatan'),
+                const SizedBox(height: 5),
+
+                // Deskripsi
+                _buildTextField(_deskripsiController, 'Deskripsi', 'Tulis deskripsi event...', maxLines: 5),
+                const SizedBox(height: 10),
+
+                // Tombol Aksi
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _onSave,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                      ),
+                      child: const Text('Simpan'),
+                    ),
+                    const SizedBox(width: 10),
+                    OutlinedButton(
+                      onPressed: _onReset,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black54,
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                      ),
+                      child: const Text('Reset'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
