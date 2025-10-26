@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'mutasiTambah.dart';
+import 'package:intl/intl.dart';
 
-class mutasiDaftar extends StatefulWidget {
-  const mutasiDaftar({super.key});
+class MutasiDaftarPage extends StatefulWidget {
+  const MutasiDaftarPage({super.key});
 
   @override
-  State<mutasiDaftar> createState() => _mutasiDaftarState();
+  State<MutasiDaftarPage> createState() => _MutasiDaftarPageState();
 }
 
-class _mutasiDaftarState extends State<mutasiDaftar> {
+class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
   final List<bool> _expanded = [];
 
   String? _filterStatus;
@@ -32,10 +32,12 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
   ];
 
   List<Map<String, String>> get _visible => _all.where((m) {
-    final matchesStatus = _filterStatus == null || m['type'] == _filterStatus;
-    final matchesFamily = _filterFamily == null || m['family'] == _filterFamily;
-    return matchesStatus && matchesFamily;
-  }).toList();
+        final matchesStatus =
+            _filterStatus == null || m['type'] == _filterStatus;
+        final matchesFamily =
+            _filterFamily == null || m['family'] == _filterFamily;
+        return matchesStatus && matchesFamily;
+      }).toList();
 
   void _ensureExpandedLength() {
     if (_expanded.length != _visible.length) {
@@ -51,16 +53,15 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
 
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: OutlinedButton.icon(
-              onPressed: () => _showFilterDialog(context),
-              icon: const Icon(Icons.filter_list),
-              label: const Text('Filter'),
-            ),
-          ),
-        ],
+        title: const Text('Daftar Mutasi'),
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+      ),
+      floatingActionButton: FloatingActionButton.small(
+        backgroundColor: Colors.deepPurple[100],
+        foregroundColor: Colors.deepPurple[800],
+        onPressed: () => _showFilterDialog(context),
+        child: const Icon(Icons.filter_list),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,8 +74,8 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
             final color = type == 'Pindah Masuk'
                 ? Colors.green
                 : type == 'Pindah Keluar'
-                ? Colors.red
-                : Colors.grey;
+                    ? Colors.red
+                    : Colors.grey;
 
             return _buildCard(
               family: m['family'] ?? '',
@@ -99,14 +100,15 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
     final expanded = _expanded.length > index ? _expanded[index] : false;
 
     return Card(
-      elevation: 2,
+      elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           InkWell(
             onTap: () => setState(() {
-              if (_expanded.length > index)
+              if (_expanded.length > index) {
                 _expanded[index] = !_expanded[index];
+              }
             }),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -135,10 +137,8 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: color[100],
                       borderRadius: BorderRadius.circular(16),
@@ -179,70 +179,21 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  // Show alamat baru and alasan when available
-                  if ((type == 'Pindah Masuk' || type == 'Pindah Keluar'))
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Alamat Baru: ${_all[index]['alamat_baru'] ?? '-'}',
-                          ),
-                          Text('Alasan: ${_all[index]['alasan'] ?? '-'}'),
-                        ],
-                      ),
-                    ),
-                  _buildDetails(type),
-                  const SizedBox(height: 12),
+                  Text('Alamat Baru: ${_all[index]['alamat_baru'] ?? '-'}'),
+                  Text('Alasan: ${_all[index]['alasan'] ?? '-'}'),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        // prepare initial data for editing
-                        final initial = Map<String, String>.from(_all[index]);
-                        final result =
-                            await Navigator.push<Map<String, String>?>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => MutasiTambah(
-                                  families: _all
-                                      .map((e) => e['family'] ?? '')
-                                      .toSet()
-                                      .toList(),
-                                  initialData: initial,
-                                ),
-                              ),
-                            );
-                        if (result == null) return;
-
-                        // try to match by family+date
-                        final matchFamily = result['family'];
-                        final matchDate = result['date'];
-                        var applied = false;
-                        for (var i = 0; i < _all.length; i++) {
-                          if (_all[i]['family'] == matchFamily &&
-                              _all[i]['date'] == matchDate) {
-                            setState(() {
-                              _all[i] = Map<String, String>.from(result);
-                            });
-                            applied = true;
-                            break;
-                          }
-                        }
-                        // fallback: replace by index
-                        if (!applied) {
-                          setState(() {
-                            _all[index] = Map<String, String>.from(result);
-                          });
-                        }
-                      },
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.edit, size: 18),
+                      label: const Text('Edit'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple[100],
-                        foregroundColor: Colors.purple[800],
+                        backgroundColor: Colors.deepPurple[100],
+                        foregroundColor: Colors.deepPurple[800],
                         elevation: 0,
                       ),
-                      child: const Text('Edit'),
+                      onPressed: () =>
+                          _showEditDialog(context, index, _all[index]),
                     ),
                   ),
                 ],
@@ -253,69 +204,151 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
     );
   }
 
-  Widget _buildDetails(String type) {
-    switch (type) {
-      case 'Pindah Masuk':
-        return const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Alamat Asal: Jl. Merdeka No.10'),
-            Text('No. Surat: PM-2025-001'),
+  void _showEditDialog(
+      BuildContext context, int index, Map<String, String> currentData) {
+    final _formKey = GlobalKey<FormState>();
+    final _familyController =
+        TextEditingController(text: currentData['family'] ?? '');
+    final _alamatController =
+        TextEditingController(text: currentData['alamat_baru'] ?? '');
+    final _alasanController =
+        TextEditingController(text: currentData['alasan'] ?? '');
+    String type = currentData['type'] ?? '';
+    DateTime date = DateTime.tryParse(currentData['date'] ?? '') ??
+        DateTime.now();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Edit Data Mutasi',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _familyController,
+                    decoration: const InputDecoration(labelText: 'Nama Keluarga'),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Harus diisi' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: type,
+                    items: const [
+                      DropdownMenuItem(
+                          value: 'Pindah Masuk', child: Text('Pindah Masuk')),
+                      DropdownMenuItem(
+                          value: 'Pindah Keluar', child: Text('Pindah Keluar')),
+                    ],
+                    onChanged: (v) => type = v ?? '',
+                    decoration:
+                        const InputDecoration(labelText: 'Jenis Mutasi'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Tanggal',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today),
+                        onPressed: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: date,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (picked != null) {
+                            date = picked;
+                            setState(() {});
+                          }
+                        },
+                      ),
+                    ),
+                    controller: TextEditingController(
+                        text: DateFormat('yyyy-MM-dd').format(date)),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _alamatController,
+                    decoration: const InputDecoration(labelText: 'Alamat Baru'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _alasanController,
+                    decoration: const InputDecoration(labelText: 'Alasan'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Batal'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    _all[index] = {
+                      'family': _familyController.text,
+                      'type': type,
+                      'date': DateFormat('yyyy-MM-dd').format(date),
+                      'alamat_baru': _alamatController.text,
+                      'alasan': _alasanController.text,
+                    };
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        'Data mutasi "${_familyController.text}" berhasil diperbarui!'),
+                    backgroundColor: Colors.deepPurple,
+                  ));
+                  Navigator.pop(context);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Simpan'),
+            ),
           ],
         );
-      case 'Pindah Keluar':
-        return const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Alamat Tujuan: Jl. Raya'),
-            Text('No. Surat: PK-2025-002'),
-          ],
-        );
-      default:
-        return const SizedBox.shrink();
-    }
+      },
+    );
   }
 
   void _showFilterDialog(BuildContext context) {
     String? selectedStatus = _filterStatus;
     String? selectedFamily = _filterFamily;
 
-    final families = _all
-        .map((e) => e['family'])
-        .whereType<String>()
-        .toSet()
-        .toList();
+    final families =
+        _all.map((e) => e['family']).whereType<String>().toSet().toList();
 
     showDialog<void>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (dialogContext) {
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 24,
-          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Filter Mutasi',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
+                const Text(
+                  'Filter Mutasi',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 const Text('Status'),
@@ -323,20 +356,13 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
                   value: selectedStatus,
                   items: const [
                     DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('-- Semua --'),
-                    ),
+                        value: null, child: Text('-- Semua --')),
                     DropdownMenuItem<String?>(
-                      value: 'Pindah Masuk',
-                      child: Text('Pindah Rumah'),
-                    ),
+                        value: 'Pindah Masuk', child: Text('Pindah Masuk')),
                     DropdownMenuItem<String?>(
-                      value: 'Pindah Keluar',
-                      child: Text('Keluar Perumahan'),
-                    ),
+                        value: 'Pindah Keluar', child: Text('Pindah Keluar')),
                   ],
                   onChanged: (v) => selectedStatus = v,
-                  decoration: const InputDecoration(),
                 ),
                 const SizedBox(height: 12),
                 const Text('Keluarga'),
@@ -344,20 +370,13 @@ class _mutasiDaftarState extends State<mutasiDaftar> {
                   value: selectedFamily,
                   items: [
                     const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('-- Semua Keluarga --'),
-                    ),
+                        value: null, child: Text('-- Semua Keluarga --')),
                     ...families
-                        .map(
-                          (f) => DropdownMenuItem<String?>(
-                            value: f,
-                            child: Text(f),
-                          ),
-                        )
+                        .map((f) =>
+                            DropdownMenuItem<String?>(value: f, child: Text(f)))
                         .toList(),
                   ],
                   onChanged: (v) => selectedFamily = v,
-                  decoration: const InputDecoration(),
                 ),
                 const SizedBox(height: 16),
                 Row(

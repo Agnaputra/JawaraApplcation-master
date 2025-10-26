@@ -292,7 +292,7 @@ class SideBar extends StatelessWidget {
                         leading: Icon(Icons.event_note_outlined),
                         title: Text('Kegiatan - Daftar'),
                         onTap: () {
-                          onNavigate(const kegiatanDaftarPage());
+                          onNavigate(const KegiatanDaftarPage());
                         },
                       ),
                       ListTile(
@@ -361,7 +361,7 @@ class SideBar extends StatelessWidget {
                         leading: Icon(Icons.list_alt_outlined),
                         title: Text('Daftar'),
                         onTap: () {
-                          onNavigate(const mutasiDaftar());
+                          onNavigate(const MutasiDaftarPage());
                         },
                       ),
                       ListTile(
