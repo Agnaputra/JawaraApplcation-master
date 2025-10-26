@@ -57,12 +57,16 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
-      floatingActionButton: FloatingActionButton.small(
-        backgroundColor: Colors.deepPurple[100],
-        foregroundColor: Colors.deepPurple[800],
+
+      // ✅ Tombol filter hanya ikon
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
         onPressed: () => _showFilterDialog(context),
+        tooltip: 'Filter',
         child: const Icon(Icons.filter_list),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView.separated(
@@ -214,8 +218,8 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
     final _alasanController =
         TextEditingController(text: currentData['alasan'] ?? '');
     String type = currentData['type'] ?? '';
-    DateTime date = DateTime.tryParse(currentData['date'] ?? '') ??
-        DateTime.now();
+    DateTime date =
+        DateTime.tryParse(currentData['date'] ?? '') ?? DateTime.now();
 
     showDialog(
       context: context,
@@ -233,7 +237,8 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
                 children: [
                   TextFormField(
                     controller: _familyController,
-                    decoration: const InputDecoration(labelText: 'Nama Keluarga'),
+                    decoration:
+                        const InputDecoration(labelText: 'Nama Keluarga'),
                     validator: (v) =>
                         v == null || v.isEmpty ? 'Harus diisi' : null,
                   ),
@@ -400,6 +405,13 @@ class _MutasiDaftarPageState extends State<MutasiDaftarPage> {
                         });
                         Navigator.pop(dialogContext);
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                       child: const Text('Terapkan'),
                     ),
                   ],

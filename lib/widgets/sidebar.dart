@@ -368,7 +368,7 @@ class SideBar extends StatelessWidget {
                         leading: Icon(Icons.add_circle_outline),
                         title: Text('Tambah'),
                         onTap: () {
-                          onNavigate(const MutasiTambah());
+                          onNavigate(const MutasiTambahPage());
                         },
                       ),
                     ],

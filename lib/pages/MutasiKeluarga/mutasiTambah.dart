@@ -1,22 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class MutasiTambah extends StatefulWidget {
+class MutasiTambahPage extends StatelessWidget {
   final List<String>? families;
   final Map<String, String>? initialData;
 
-  const MutasiTambah({super.key, this.families, this.initialData});
+  const MutasiTambahPage({super.key, this.families, this.initialData});
 
   @override
-  State<MutasiTambah> createState() => _MutasiTambahState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tambah Mutasi Keluarga'),
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Card Form
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(30),
+                child: MutasiTambahForm(
+                  families: families,
+                  initialData: initialData,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _MutasiTambahState extends State<MutasiTambah> {
+class MutasiTambahForm extends StatefulWidget {
+  final List<String>? families;
+  final Map<String, String>? initialData;
+
+  const MutasiTambahForm({super.key, this.families, this.initialData});
+
+  @override
+  State<MutasiTambahForm> createState() => _MutasiTambahFormState();
+}
+
+class _MutasiTambahFormState extends State<MutasiTambahForm> {
   final _formKey = GlobalKey<FormState>();
   String? _jenis;
   String? _keluarga;
   String? _alasan;
   DateTime? _tanggal;
+
+  List<String> get _families => widget.families ?? ['Keluarga A', 'Keluarga B'];
 
   @override
   void initState() {
@@ -34,24 +76,16 @@ class _MutasiTambahState extends State<MutasiTambah> {
     }
   }
 
-  List<String> get _families => widget.families ?? ['Keluarga A', 'Keluarga B'];
-
   Future<void> _pickDate() async {
-    final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _tanggal ?? now,
-      firstDate: DateTime(now.year - 5),
-      lastDate: DateTime(now.year + 5),
+      initialDate: _tanggal ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: Colors.deepPurple,
-            colorScheme:
-                const ColorScheme.light(primary: Colors.deepPurple),
-            buttonTheme: const ButtonThemeData(
-              textTheme: ButtonTextTheme.primary,
-            ),
+            colorScheme: const ColorScheme.light(primary: Colors.deepPurple),
           ),
           child: child!,
         );
@@ -70,10 +104,11 @@ class _MutasiTambahState extends State<MutasiTambah> {
     });
   }
 
-  void _save() {
+  void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
+    // Logika penyimpanan data (Simulasi)
     final result = {
       'type': _jenis ?? '',
       'family': _keluarga ?? '',
@@ -83,14 +118,19 @@ class _MutasiTambahState extends State<MutasiTambah> {
           : DateTime.now().toIso8601String().split('T').first,
     };
 
+    if (!mounted) return;
+
+    // Aksi Simpan (SnackBar) - Disamakan dengan Kegiatan Tambah
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Mutasi keluarga berhasil disimpan!'),
+        content: Text('Mutasi keluarga "${_keluarga ?? ''}" berhasil disimpan!'),
         backgroundColor: Colors.deepPurple,
       ),
     );
-
-    Navigator.pop(context, result);
+    
+    _resetForm(); // Reset formulir setelah simpan
+    
+    // TIDAK ADA NAVIGATOR.POP DI SINI, mencegah crash asinkron
   }
 
   Widget _buildDropdown<T>({
@@ -118,10 +158,8 @@ class _MutasiTambahState extends State<MutasiTambah> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Colors.deepPurple,
-                width: 1.5,
-              ),
+              borderSide:
+                  const BorderSide(color: Colors.deepPurple, width: 1.5),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -181,161 +219,137 @@ class _MutasiTambahState extends State<MutasiTambah> {
         ? '-- / -- / ----'
         : DateFormat('dd-MM-yyyy').format(_tanggal!);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F5FB),
-      appBar: AppBar(
-        title: const Text('Tambah Mutasi Keluarga'),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          elevation: 8,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Jenis Mutasi
+          _buildDropdown<String>(
+            label: 'Jenis Mutasi',
+            value: _jenis,
+            items: const [
+              DropdownMenuItem(value: 'Pindah Masuk', child: Text('Pindah Masuk')),
+              DropdownMenuItem(value: 'Pindah Keluar', child: Text('Pindah Keluar')),
+            ],
+            onChanged: (v) => setState(() => _jenis = v),
+            validator: (v) => (v == null || v.isEmpty)
+                ? 'Pilih jenis mutasi'
+                : null,
+          ),
+
+          // Nama Keluarga
+          _buildDropdown<String>(
+            label: 'Nama Keluarga',
+            value: _keluarga,
+            items: _families
+                .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                .toList(),
+            onChanged: (v) => setState(() => _keluarga = v),
+            validator: (v) => (v == null || v.isEmpty)
+                ? 'Pilih keluarga'
+                : null,
+          ),
+
+          // Alasan
+          _buildTextField(
+            label: 'Alasan Mutasi',
+            hint: 'Contoh: Pindah tempat kerja atau studi',
+            maxLines: 3,
+            onSaved: (v) => _alasan = v,
+            validator: (v) =>
+                (v == null || v.isEmpty) ? 'Alasan mutasi wajib diisi' : null,
+          ),
+
+          // Tanggal Mutasi
+          const Text(
+            'Tanggal Mutasi',
+            style: TextStyle(
+                fontWeight: FontWeight.w600, color: Color(0xFF454545)),
+          ),
+          const SizedBox(height: 5),
+          TextFormField(
+            readOnly: true,
+            controller: TextEditingController(text: dateText),
+            onTap: _pickDate,
+            decoration: InputDecoration(
+              hintText: '-- / -- / ----',
+              filled: true,
+              fillColor: const Color(0xFFF0F0F5),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide:
+                    const BorderSide(color: Colors.deepPurple, width: 1.5),
+              ),
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    "Formulir Mutasi Keluarga",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-
-                  // Jenis Mutasi
-                  _buildDropdown<String>(
-                    label: 'Jenis Mutasi',
-                    value: _jenis,
-                    items: const [
-                      DropdownMenuItem(
-                          value: 'Pindah Masuk', child: Text('Pindah Masuk')),
-                      DropdownMenuItem(
-                          value: 'Pindah Keluar', child: Text('Pindah Keluar')),
-                    ],
-                    onChanged: (v) => setState(() => _jenis = v),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Pilih jenis mutasi' : null,
-                  ),
-
-                  // Keluarga
-                  _buildDropdown<String>(
-                    label: 'Nama Keluarga',
-                    value: _keluarga,
-                    items: _families
-                        .map((f) =>
-                            DropdownMenuItem(value: f, child: Text(f)))
-                        .toList(),
-                    onChanged: (v) => setState(() => _keluarga = v),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Pilih keluarga' : null,
-                  ),
-
-                  // Alasan Mutasi
-                  _buildTextField(
-                    label: 'Alasan Mutasi',
-                    hint: 'Contoh: Pindah tempat kerja atau studi',
-                    maxLines: 3,
-                    onSaved: (v) => _alasan = v,
-                    validator: (v) => (v == null || v.isEmpty)
-                        ? 'Alasan mutasi wajib diisi'
+                  IconButton(
+                    icon: Icon(Icons.close,
+                        size: 20,
+                        color:
+                            _tanggal != null ? Colors.redAccent : Colors.grey),
+                    onPressed: _tanggal != null
+                        ? () => setState(() => _tanggal = null)
                         : null,
                   ),
-
-                  // Tanggal Mutasi
-                  const Text(
-                    'Tanggal Mutasi',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF454545)),
-                  ),
-                  const SizedBox(height: 5),
-                  TextFormField(
-                    readOnly: true,
-                    controller: TextEditingController(text: dateText),
-                    onTap: _pickDate,
-                    decoration: InputDecoration(
-                      hintText: '-- / -- / ----',
-                      filled: true,
-                      fillColor: const Color(0xFFF0F0F5),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: Colors.deepPurple, width: 1.5),
-                      ),
-                      suffixIcon: IconButton(
-                        icon: const Icon(
-                          Icons.calendar_month,
-                          color: Colors.deepPurple,
-                        ),
-                        onPressed: _pickDate,
-                      ),
-                    ),
-                    validator: (value) =>
-                        (_tanggal == null) ? 'Tanggal wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Tombol Aksi
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _save,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 5,
-                        ),
-                        child: const Text('Simpan'),
-                      ),
-                      const SizedBox(width: 10),
-                      OutlinedButton(
-                        onPressed: _resetForm,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          side: const BorderSide(color: Colors.grey),
-                        ),
-                        child: const Text(
-                          'Reset',
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                      ),
-                    ],
+                  Container(color: Colors.grey.shade400, width: 1, height: 24),
+                  IconButton(
+                    icon: const Icon(Icons.calendar_month,
+                        color: Colors.deepPurple),
+                    onPressed: _pickDate,
                   ),
                 ],
               ),
             ),
+            validator: (value) =>
+                (_tanggal == null) ? 'Tanggal wajib diisi' : null,
           ),
-        ),
+          const SizedBox(height: 30),
+
+          // Tombol Submit & Reset
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ElevatedButton(
+                onPressed: _submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 5,
+                ),
+                child: const Text('Submit'),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton(
+                onPressed: _resetForm,
+                style: OutlinedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: const BorderSide(color: Colors.grey),
+                ),
+                child: const Text(
+                  'Reset',
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
